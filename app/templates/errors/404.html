@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% endblock %}
+</div>
+    </div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Wróć do strony głównej</a>
+        <p class="lead">Przepraszamy, strona której szukasz nie istnieje.</p>
+        <h2>Strona nie znaleziona</h2>
+        <h1 class="display-1">404</h1>
+    <div class="col-md-6 text-center">
+<div class="row justify-content-center">
+{% block content %}
+
+{% block title %}Strona nie znaleziona{% endblock %}
+
+

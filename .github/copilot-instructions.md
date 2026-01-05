@@ -1,0 +1,1 @@
+- don't create many .md files with instructions, quickstart  and other. write or add everything in one file: README.md 

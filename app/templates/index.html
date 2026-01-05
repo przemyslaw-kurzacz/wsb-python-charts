@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Strona główna{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Witaj w aplikacji Data Charts!</h1>
+        <p class="lead">Jesteś zalogowany jako <strong>{{ session.username }}</strong></p>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Funkcje aplikacji</h5>
+                <ul>
+                    <li>Upload plików z danymi (CSV)</li>
+                    <li>Oczyszczanie danych (obsługa wartości null)</li>
+                    <li>Wizualizacja danych w postaci wykresów</li>
+                </ul>
+                <p class="text-muted mt-3"><em>Funkcje będą dostępne wkrótce...</em></p>
+            </div>
+        </div>
+
+        <!-- Upload File Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-cloud-upload"></i> Prześlij plik CSV
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if uploaded_file %}
+                    <div class="alert alert-info mb-3" role="alert">
+                        <strong>📄 Aktualny plik:</strong> {{ uploaded_file }}
+                        <br>
+                        <small class="text-muted">Przesłanie nowego pliku zastąpi obecny plik.</small>
+                    </div>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.file.label(class="form-label") }}
+                        {{ form.file(class="form-control" + (" is-invalid" if form.file.errors else ""), accept=".csv") }}
+                        {% if form.file.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.file.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="form-text">
+                                Wybierz plik CSV do analizy. Tylko jeden plik może być przechowywany jednocześnie.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-muted">
+                    <small>
+                        <strong>💡 Wskazówka:</strong> Plik CSV powinien zawierać nagłówki kolumn w pierwszym wierszu.
+                        Przykładowy plik testowy: <code>przykładowe_dane.csv</code>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

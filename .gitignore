@@ -1,0 +1,32 @@
+# Python
+.DS_Store
+# OS
+
+*.swo
+*.swp
+.idea/
+.vscode/
+# IDE
+
+uploads/
+# Uploads
+
+*.sqlite
+*.db
+data/
+# Database
+
+.webassets-cache
+instance/
+# Flask
+
+ENV/
+env/
+.venv/
+venv/
+.Python
+*.so
+*$py.class
+*.py[cod]
+__pycache__/
+
