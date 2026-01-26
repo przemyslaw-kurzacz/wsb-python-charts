@@ -33,6 +33,11 @@
                         <strong>📄 Aktualny plik:</strong> {{ uploaded_file }}
                         <br>
                         <small class="text-muted">Przesłanie nowego pliku zastąpi obecny plik.</small>
+                        <div class="mt-2">
+                            <a class="btn btn-outline-dark btn-sm" href="{{ url_for('data.current_json') }}" target="_blank" rel="noopener">
+                                Pokaż dane (JSON)
+                            </a>
+                        </div>
                     </div>
                 {% endif %}
 
