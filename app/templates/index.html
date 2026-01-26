@@ -14,23 +14,13 @@
                 <ul>
                     <li>Upload plików z danymi (CSV)</li>
                     <li>Oczyszczanie danych (obsługa wartości null)</li>
-                    <li>Wizualizacja danych w postaci wykresów</li>
+                    <li>Podstawowe statystyki</li>
+                    <li>Wizualizacje danych</li>
                 </ul>
-                <p class="text-muted mt-3"><em>Funkcje będą dostępne wkrótce...</em></p>
-            </div>
-        </div>
 
-        <!-- Upload File Section -->
-        <div class="card mt-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-cloud-upload"></i> Prześlij plik CSV
-                </h5>
-            </div>
-            <div class="card-body">
                 {% if uploaded_file %}
-                    <div class="alert alert-info mb-3" role="alert">
-                        <strong>📄 Aktualny plik:</strong> {{ uploaded_file }}
+                    <div class="alert alert-info mt-3">
+                        <strong>Aktualny plik:</strong> {{ uploaded_file }}
                         <br>
                         <small class="text-muted">Przesłanie nowego pliku zastąpi obecny plik.</small>
                     </div>
@@ -70,7 +60,64 @@
                 </div>
             </div>
         </div>
+
+        {# ==============================
+           PODSUMOWANIE DANYCH
+           ============================== #}
+        {% if stats %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="card-title">📌 Podsumowanie danych</h4>
+
+                <ul class="mb-0">
+                    <li><strong>Wiersze:</strong> {{ stats.rows }}</li>
+                    <li><strong>Kolumny:</strong> {{ stats.cols }}</li>
+                    <li><strong>Braki danych (łącznie):</strong> {{ stats.missing_total }}</li>
+                    <li><strong>Kolumny numeryczne (wykryte):</strong> {{ stats.numeric_columns | join(', ') }}</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        {# ==============================
+           WIZUALIZACJE
+           ============================== #}
+        {% if charts %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="card-title">📊 Wizualizacje</h4>
+                <p class="text-muted mb-4">
+                    Poniższe wykresy są generowane automatycznie po przesłaniu CSV.
+                </p>
+                <div class="row">
+                {% for title, img in charts.items() %}
+                    <div class="col-12 col-lg-6 mb-4">
+                    <div class="p-3 border rounded bg-white h-100">
+                        <h6 class="mb-2">{{ title }}</h6>
+
+                        <!-- img-fluid = dopasowanie do szerokości kontenera -->
+                        <!-- w-100 = zawsze 100% szerokości -->
+                        <!-- height:auto = zachowuje proporcje -->
+                        <img
+                        src="data:image/png;base64,{{ img }}"
+                        class="img-fluid w-100"
+                        style="height:auto;"
+                        alt="{{ title }}"
+                        >
+                    </div>
+                    </div>
+                {% endfor %}
+                </div>
+
+            </div>
+        </div>
+        {% endif %}
+
+        {% if message %}
+        <div class="alert alert-warning mt-4">
+            {{ message }}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
-
