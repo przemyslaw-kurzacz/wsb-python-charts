@@ -8,7 +8,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     # Ensure required directories exist
-    os.makedirs(app.config['DATABASE_PATH'].rsplit('/', 1)[0], exist_ok=True)
+    os.makedirs(os.path.dirname(app.config['DATABASE_PATH']), exist_ok=True)
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Register blueprints
