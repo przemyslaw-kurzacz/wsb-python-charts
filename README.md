@@ -25,17 +25,47 @@
 
 ## 🚀 Szybki start
 
+### Metoda 1: Automatyczna (ZALECANA) ⭐
+
 ```bash
-# 1. Uruchom aplikację
+# Uruchom skrypt automatyczny
 ./run.sh
-
-# 2. Otwórz w przeglądarce
-http://127.0.0.1:5000
-
-# 3. Zarejestruj się i zaloguj
-# 4. Prześlij plik CSV (np. przykładowe_dane.csv)
-# 5. Zobacz flash message z potwierdzeniem!
 ```
+
+Skrypt **automatycznie**:
+- ✅ Utworzy środowisko wirtualne (.venv) jeśli nie istnieje
+- ✅ Zainstaluje wszystkie zależności z requirements.txt
+- ✅ Uruchomi aplikację Flask
+
+### Metoda 2: Manualna (krok po kroku)
+
+```bash
+# 1. Aktywuj środowisko wirtualne
+source .venv/bin/activate
+
+# 2. Uruchom aplikację
+python main.py
+```
+
+### Metoda 3: Flask CLI
+
+```bash
+export FLASK_APP=main.py
+flask run
+```
+
+### 📱 Otwórz w przeglądarce
+
+```
+http://127.0.0.1:5000
+```
+
+### 🎯 Pierwsze kroki
+
+1. **Zarejestruj się** (Register)
+2. **Zaloguj się** (Login)
+3. **Prześlij plik CSV** (np. przykładowe_dane.csv)
+4. **Zobacz flash message z potwierdzeniem!** ✅
 
 ---
 
@@ -562,7 +592,7 @@ pytest
 pytest --cov=app
 
 # Otwórz aplikację
-http://127.0.0.1:5000
+http://127.0.0.1:5001
 
 # Zatrzymaj serwer
 Ctrl+C
