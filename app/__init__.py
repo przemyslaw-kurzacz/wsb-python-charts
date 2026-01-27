@@ -8,7 +8,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     # Ensure required directories exist
-    os.makedirs(app.config['DATABASE_PATH'].rsplit('/', 1)[0], exist_ok=True)
+    os.makedirs(os.path.dirname(app.config['DATABASE_PATH']), exist_ok=True)
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Register blueprints
@@ -20,6 +20,9 @@ def create_app(config_class=Config):
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
+
+    from app.data.routes import bp as data_bp
+    app.register_blueprint(data_bp)
 
     return app
 

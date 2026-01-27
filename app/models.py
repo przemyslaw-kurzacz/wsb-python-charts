@@ -1,12 +1,14 @@
 from tinydb import TinyDB, Query
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
+from pathlib import Path
 import os
 
 
 def get_db():
     """Get TinyDB instance"""
-    db_path = current_app.config['DATABASE_PATH']
+    db_path = current_app.config["DATABASE_PATH"]
+    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     return TinyDB(db_path)
 
 

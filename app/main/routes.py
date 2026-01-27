@@ -15,7 +15,7 @@ def index():
     form = UploadForm()
     uploaded_file = None
 
-    # Sprawdź czy użytkownik ma już przesłany plik
+    # Sprawdź czy użytkownik ma już przesłany plik1
     user_folder = os.path.join(current_app.config['UPLOAD_FOLDER'], session['username'])
     if os.path.exists(user_folder):
         user_files = glob.glob(os.path.join(user_folder, '*.csv'))
