@@ -14,23 +14,13 @@
                 <ul>
                     <li>Upload plików z danymi (CSV)</li>
                     <li>Oczyszczanie danych (obsługa wartości null)</li>
-                    <li>Wizualizacja danych w postaci wykresów</li>
+                    <li>Podstawowe statystyki</li>
+                    <li>Interaktywne wykresy z filtrami (Plotly)</li>
                 </ul>
-                <p class="text-muted mt-3"><em>Funkcje będą dostępne wkrótce...</em></p>
-            </div>
-        </div>
 
-        <!-- Upload File Section -->
-        <div class="card mt-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-cloud-upload"></i> Prześlij plik CSV
-                </h5>
-            </div>
-            <div class="card-body">
                 {% if uploaded_file %}
-                    <div class="alert alert-info mb-3" role="alert">
-                        <strong>📄 Aktualny plik:</strong> {{ uploaded_file }}
+                    <div class="alert alert-info mt-3">
+                        <strong>Aktualny plik:</strong> {{ uploaded_file }}
                         <br>
                         <small class="text-muted">Przesłanie nowego pliku zastąpi obecny plik.</small>
                         <div class="mt-2">
@@ -70,12 +60,386 @@
                 <div class="text-muted">
                     <small>
                         <strong>💡 Wskazówka:</strong> Plik CSV powinien zawierać nagłówki kolumn w pierwszym wierszu.
-                        Przykładowy plik testowy: <code>przykładowe_dane.csv</code>
                     </small>
                 </div>
             </div>
         </div>
+
+        {# ==============================
+           PODSUMOWANIE DANYCH
+           ============================== #}
+        {% if stats %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="card-title">📌 Podsumowanie danych</h4>
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <ul class="mb-0">
+                            <li><strong>Wiersze:</strong> {{ stats.rows }}</li>
+                            <li><strong>Kolumny:</strong> {{ stats.cols }}</li>
+                            <li><strong>Braki danych (łącznie):</strong> {{ stats.missing_total }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="small text-muted">
+                            <div><strong>Kolumny numeryczne:</strong> {{ stats.numeric_columns | join(', ') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# ==============================
+           DASHBOARD + FILTRY
+           ============================== #}
+        {% if metadata %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h4 class="card-title">📊 Dashboard</h4>
+                <p class="text-muted mb-3">
+                    Zmień typ wykresu i filtry — wykresy odświeżają się bez przeładowywania strony.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-4">
+                        <div class="border rounded p-3 bg-light">
+                            <h6 class="mb-3">Konfiguracja wykresu</h6>
+
+                            <div class="mb-2">
+                                <label class="form-label">Typ wykresu</label>
+                                <select class="form-select" id="chartType">
+                                    <option value="histogram">Histogram</option>
+                                    <option value="box">Boxplot</option>
+                                    <option value="bar_counts">Barplot (liczności)</option>
+                                    <option value="scatter">Scatter (x vs y)</option>
+                                    <option value="corr_heatmap">Heatmapa korelacji</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2" id="rowColumn">
+                                <label class="form-label">Kolumna</label>
+                                <select class="form-select" id="columnSelect"></select>
+                            </div>
+
+                            <div class="row g-2 mb-2" id="rowXY" style="display:none;">
+                                <div class="col-6">
+                                    <label class="form-label">X</label>
+                                    <select class="form-select" id="xSelect"></select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Y</label>
+                                    <select class="form-select" id="ySelect"></select>
+                                </div>
+                            </div>
+
+                            <div class="mb-2" id="rowColor" style="display:none;">
+                                <label class="form-label">Kolor (opcjonalnie)</label>
+                                <select class="form-select" id="colorSelect">
+                                    <option value="">(brak)</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2 mb-2" id="rowHistogram" style="display:none;">
+                                <div class="col-6">
+                                    <label class="form-label">Bins</label>
+                                    <input class="form-control" type="number" id="binsInput" min="5" max="200" value="30">
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-2" id="rowBar" style="display:none;">
+                                <div class="col-6">
+                                    <label class="form-label">Top N</label>
+                                    <input class="form-control" type="number" id="topNInput" min="5" max="200" value="20">
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <h6 class="mb-2">Filtr (opcjonalnie)</h6>
+
+                            <div class="mb-2">
+                                <label class="form-label">Filtruj po kolumnie</label>
+                                <select class="form-select" id="filterColumn">
+                                    <option value="">(brak)</option>
+                                </select>
+                            </div>
+
+                            <div class="row g-2 mb-2" id="filterNumeric" style="display:none;">
+                                <div class="col-6">
+                                    <label class="form-label">Min</label>
+                                    <input class="form-control" type="number" id="filterMin" step="any">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Max</label>
+                                    <input class="form-control" type="number" id="filterMax" step="any">
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-text" id="filterRangeHint"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-2" id="filterCategorical" style="display:none;">
+                                <label class="form-label">Wartości (CSV, np. A,B,C)</label>
+                                <input class="form-control" type="text" id="filterValues" placeholder="np. Warszawa,Kraków">
+                                <div class="form-text" id="filterValuesHint"></div>
+                            </div>
+
+                            <div class="row g-2 mb-2" id="filterText" style="display:none;">
+                                <div class="col-6">
+                                    <label class="form-label">Operacja</label>
+                                    <select class="form-select" id="filterOp">
+                                        <option value="contains">contains</option>
+                                        <option value="equals">equals</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Wartość</label>
+                                    <input class="form-control" type="text" id="filterValue" placeholder="tekst...">
+                                </div>
+                            </div>
+
+                            <div class="d-grid mt-3">
+                                <button class="btn btn-dark" id="applyBtn" type="button">Zastosuj</button>
+                            </div>
+
+                            <div class="small text-muted mt-2">
+                                Dataset: {{ metadata.rows }} wierszy, {{ metadata.cols }} kolumn.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-8">
+                        <div class="border rounded p-3 bg-white">
+                            <div id="chart" style="min-height:420px;"></div>
+                            <div class="text-muted small mt-2" id="chartStatus"></div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            {% if initial_figs.get('histogram') %}
+                            <div class="col-12 col-lg-6">
+                                <div class="border rounded p-3 bg-white">
+                                    <div class="fw-semibold mb-2">Histogram (domyślny)</div>
+                                    <div id="initialHistogram" style="min-height:320px;"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if initial_figs.get('bar_counts') %}
+                            <div class="col-12 col-lg-6">
+                                <div class="border rounded p-3 bg-white">
+                                    <div class="fw-semibold mb-2">Liczności (domyślny)</div>
+                                    <div id="initialBar" style="min-height:320px;"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if initial_figs.get('corr_heatmap') %}
+                            <div class="col-12">
+                                <div class="border rounded p-3 bg-white">
+                                    <div class="fw-semibold mb-2">Korelacje (domyślny)</div>
+                                    <div id="initialHeatmap" style="min-height:380px;"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+        <script id="metadataJson" type="application/json">{{ metadata | tojson }}</script>
+        <script id="initialFigsJson" type="application/json">{{ initial_figs_json | safe }}</script>
+
+        <script>
+        (function() {
+            const metadata = JSON.parse(document.getElementById('metadataJson').textContent);
+            const initialFigs = JSON.parse(document.getElementById('initialFigsJson').textContent);
+
+            // Helper: set options
+            function setOptions(selectEl, values, includeEmpty=false) {
+                selectEl.innerHTML = "";
+                if (includeEmpty) {
+                    const opt = document.createElement("option");
+                    opt.value = "";
+                    opt.textContent = "(brak)";
+                    selectEl.appendChild(opt);
+                }
+                for (const v of values) {
+                    const opt = document.createElement("option");
+                    opt.value = v;
+                    opt.textContent = v;
+                    selectEl.appendChild(opt);
+                }
+            }
+
+            const chartType = document.getElementById("chartType");
+            const columnSelect = document.getElementById("columnSelect");
+            const xSelect = document.getElementById("xSelect");
+            const ySelect = document.getElementById("ySelect");
+            const colorSelect = document.getElementById("colorSelect");
+            const binsInput = document.getElementById("binsInput");
+            const topNInput = document.getElementById("topNInput");
+
+            const filterColumn = document.getElementById("filterColumn");
+            const filterMin = document.getElementById("filterMin");
+            const filterMax = document.getElementById("filterMax");
+            const filterValues = document.getElementById("filterValues");
+            const filterOp = document.getElementById("filterOp");
+            const filterValue = document.getElementById("filterValue");
+
+            const rowColumn = document.getElementById("rowColumn");
+            const rowXY = document.getElementById("rowXY");
+            const rowColor = document.getElementById("rowColor");
+            const rowHistogram = document.getElementById("rowHistogram");
+            const rowBar = document.getElementById("rowBar");
+
+            const filterNumeric = document.getElementById("filterNumeric");
+            const filterCategorical = document.getElementById("filterCategorical");
+            const filterText = document.getElementById("filterText");
+            const filterRangeHint = document.getElementById("filterRangeHint");
+            const filterValuesHint = document.getElementById("filterValuesHint");
+
+            const chartDiv = document.getElementById("chart");
+            const chartStatus = document.getElementById("chartStatus");
+
+            // Populate selects
+            setOptions(filterColumn, metadata.columns, true);
+
+            // For charts:
+            setOptions(columnSelect, metadata.numeric_columns.length ? metadata.numeric_columns : metadata.columns);
+            setOptions(xSelect, metadata.numeric_columns.length ? metadata.numeric_columns : metadata.columns);
+            setOptions(ySelect, metadata.numeric_columns.length ? metadata.numeric_columns : metadata.columns);
+            setOptions(colorSelect, metadata.categorical_columns, true);
+
+            // Defaults
+            if (metadata.numeric_columns.length) {
+                columnSelect.value = metadata.numeric_columns[0];
+                xSelect.value = metadata.numeric_columns[0];
+                ySelect.value = metadata.numeric_columns[Math.min(1, metadata.numeric_columns.length - 1)];
+            } else if (metadata.columns.length) {
+                columnSelect.value = metadata.columns[0];
+                xSelect.value = metadata.columns[0];
+                ySelect.value = metadata.columns[Math.min(1, metadata.columns.length - 1)];
+            }
+
+            // Initial renders (small cards)
+            if (initialFigs.histogram) Plotly.newPlot("initialHistogram", initialFigs.histogram.data, initialFigs.histogram.layout, {responsive:true});
+            if (initialFigs.bar_counts) Plotly.newPlot("initialBar", initialFigs.bar_counts.data, initialFigs.bar_counts.layout, {responsive:true});
+            if (initialFigs.corr_heatmap) Plotly.newPlot("initialHeatmap", initialFigs.corr_heatmap.data, initialFigs.corr_heatmap.layout, {responsive:true});
+
+            function updateVisibility() {
+                const t = chartType.value;
+
+                rowColumn.style.display = (t === "histogram" || t === "box" || t === "bar_counts") ? "" : "none";
+                rowXY.style.display = (t === "scatter") ? "" : "none";
+                rowColor.style.display = (t === "scatter") ? "" : "none";
+                rowHistogram.style.display = (t === "histogram") ? "" : "none";
+                rowBar.style.display = (t === "bar_counts") ? "" : "none";
+            }
+
+            function updateFilterUi() {
+                const fc = filterColumn.value;
+                filterNumeric.style.display = "none";
+                filterCategorical.style.display = "none";
+                filterText.style.display = "none";
+                filterRangeHint.textContent = "";
+                filterValuesHint.textContent = "";
+
+                if (!fc) return;
+
+                const isNumeric = metadata.numeric_columns.includes(fc);
+                if (isNumeric) {
+                    filterNumeric.style.display = "";
+                    const r = metadata.numeric_ranges[fc];
+                    if (r) {
+                        filterRangeHint.textContent = `Zakres w danych: ${r.min} .. ${r.max}`;
+                        if (filterMin.value === "") filterMin.value = r.min;
+                        if (filterMax.value === "") filterMax.value = r.max;
+                    }
+                    return;
+                }
+
+                // kategoryczne -> podpowiedzi
+                filterCategorical.style.display = "";
+                const vals = (metadata.categorical_values && metadata.categorical_values[fc]) ? metadata.categorical_values[fc] : [];
+                if (vals.length) {
+                    filterValuesHint.textContent = "Przykładowe wartości: " + vals.slice(0, 8).join(", ") + (vals.length > 8 ? ", ..." : "");
+                } else {
+                    // fallback: tekstowe
+                    filterCategorical.style.display = "none";
+                    filterText.style.display = "";
+                }
+            }
+
+            async function fetchChart() {
+                chartStatus.textContent = "Ładowanie wykresu...";
+                const t = chartType.value;
+
+                const params = new URLSearchParams();
+                params.set("type", t);
+
+                if (t === "histogram") {
+                    params.set("column", columnSelect.value);
+                    params.set("bins", binsInput.value);
+                } else if (t === "box") {
+                    params.set("column", columnSelect.value);
+                } else if (t === "bar_counts") {
+                    params.set("column", columnSelect.value);
+                    params.set("top_n", topNInput.value);
+                } else if (t === "scatter") {
+                    params.set("x", xSelect.value);
+                    params.set("y", ySelect.value);
+                    if (colorSelect.value) params.set("color", colorSelect.value);
+                }
+
+                // filter (optional)
+                if (filterColumn.value) {
+                    params.set("filter_column", filterColumn.value);
+                    if (metadata.numeric_columns.includes(filterColumn.value)) {
+                        if (filterMin.value !== "") params.set("filter_min", filterMin.value);
+                        if (filterMax.value !== "") params.set("filter_max", filterMax.value);
+                    } else {
+                        if (filterValues.value.trim() !== "") {
+                            params.set("filter_values", filterValues.value.trim());
+                        } else if (filterValue.value.trim() !== "") {
+                            params.set("filter_op", filterOp.value);
+                            params.set("filter_value", filterValue.value.trim());
+                        }
+                    }
+                }
+
+                const res = await fetch("/api/chart?" + params.toString(), {headers: {"Accept":"application/json"}});
+                const data = await res.json();
+
+                if (!res.ok) {
+                    chartStatus.textContent = "Błąd: " + (data.error || "nieznany");
+                    return;
+                }
+
+                Plotly.newPlot(chartDiv, data.data, data.layout, {responsive:true});
+                chartStatus.textContent = "OK";
+            }
+
+            document.getElementById("applyBtn").addEventListener("click", fetchChart);
+            chartType.addEventListener("change", () => { updateVisibility(); fetchChart(); });
+            filterColumn.addEventListener("change", updateFilterUi);
+
+            // initialize
+            updateVisibility();
+            updateFilterUi();
+            fetchChart();
+        })();
+        </script>
+        {% endif %}
+
+        {% if message %}
+        <div class="alert alert-warning mt-4">
+            {{ message }}
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
-
