@@ -6,7 +6,7 @@ import os
 import glob
 
 
-@bp.route('/')
+@bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 def index():
     if 'username' not in session:
