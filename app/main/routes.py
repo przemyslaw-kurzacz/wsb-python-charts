@@ -18,7 +18,6 @@ import glob
 import io
 import json
 
-from plotly.utils import PlotlyJSONEncoder
 
 from app.main.processing import (
     find_user_csv_file,
@@ -146,10 +145,9 @@ def index():
         except Exception as e:
             message = f"Błąd podczas przetwarzania CSV: {str(e)}"
 
-    # Plotly figures may contain numpy arrays (ndarray). Jinja's `tojson` filter
-    # uses Flask's JSON encoder, which doesn't handle ndarrays by default.
-    # We pre-serialize figures using Plotly's encoder.
-    initial_figs_json = json.dumps(initial_figs, cls=PlotlyJSONEncoder)
+    # Plotly figures are already converted to dict by plotly_charts.figure_json()
+    # so standard JSON serialization works fine.
+    initial_figs_json = json.dumps(initial_figs)
 
     return render_template(
         "index.html",
@@ -295,8 +293,9 @@ def api_chart():
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    except Exception:
-        return jsonify({"error": "Internal processing error"}), 500
+    except Exception as e:
+        current_app.logger.error(f"Chart generation error: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Internal processing error: {str(e)}"}), 500
 
 
 @bp.route("/api/stats", methods=["GET"])

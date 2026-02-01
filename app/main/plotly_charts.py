@@ -12,9 +12,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Literal
+import json
 
 import pandas as pd
 import plotly.express as px
+import plotly.io as pio
 
 
 ChartType = Literal["histogram", "box", "bar_counts", "scatter", "corr_heatmap"]
@@ -66,8 +68,13 @@ def _apply_filters(
 
 
 def figure_json(fig) -> dict[str, Any]:
-    """Plotly Figure -> dict gotowy do jsonify."""
-    return fig.to_dict()
+    """Plotly Figure -> dict gotowy do jsonify.
+
+    Używamy plotly.io.to_json() który prawidłowo konwertuje numpy arrays,
+    a następnie parsujemy z powrotem do dict.
+    """
+    json_str = pio.to_json(fig)
+    return json.loads(json_str)
 
 
 def histogram(

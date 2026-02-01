@@ -3,23 +3,46 @@
 > Aplikacja Flask do analizy i wizualizacji danych z możliwością rejestracji, logowania, uploadu plików CSV i ich przetwarzania.
 
 **Wersja:** 1.1.0  
-**Data:** 5 stycznia 2026  
+**Data:** 28 stycznia 2026  
 **Status:** ✅ PRODUCTION READY
+
+---
+
+## 📚 Dokumentacja
+
+### 📐 **[Architektura aplikacji](docs/architecture.md)**
+Szczegółowy opis architektury, wzorców projektowych i struktury kodu:
+- MVC + Blueprint Pattern
+- Przepływ danych (Request Flow)
+- Warstwy aplikacji
+- Kluczowe wzorce projektowe
+- Porównanie z innymi frameworkami
+- Ocena zgodności z best practices
+
+### 📊 **[Data Engineering - Przetwarzanie danych](docs/data-engineering.md)**
+Dokumentacja procesu czyszczenia i przetwarzania danych CSV:
+- Pipeline przetwarzania danych
+- Detekcja formatu (encoding, delimiter)
+- Parsowanie i walidacja
+- Czyszczenie danych (braki, konwersje)
+- Profilowanie kolumn
+- Przykłady i rozwiązania problemów
 
 ---
 
 ## 📋 Spis treści
 
-1. [Szybki start](#-szybki-start)
-2. [Funkcjonalności](#-funkcjonalności)
-3. [Technologie](#-technologie)
-4. [Instalacja](#-instalacja)
-5. [Uruchomienie](#-uruchomienie)
-6. [Testy](#-testy)
-7. [Struktura projektu](#-struktura-projektu)
-8. [Użytkowanie](#-użytkowanie)
-9. [Bezpieczeństwo](#-bezpieczeństwo)
-10. [Rozwiązywanie problemów](#-rozwiązywanie-problemów)
+1. [Dokumentacja](#-dokumentacja)
+2. [Szybki start](#-szybki-start)
+3. [Funkcjonalności](#-funkcjonalności)
+4. [Technologie](#-technologie)
+5. [Instalacja](#-instalacja)
+6. [Uruchomienie](#-uruchomienie)
+7. [Testy](#-testy)
+8. [Struktura projektu](#-struktura-projektu)
+9. [Użytkowanie](#-użytkowanie)
+10. [Bezpieczeństwo](#-bezpieczeństwo)
+11. [Rozwiązywanie problemów](#-rozwiązywanie-problemów)
 
 ---
 
